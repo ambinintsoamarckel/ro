@@ -21,4 +21,5 @@ Task.hasMany(Dependency, { foreignKey: 'dependsOnId', as: 'successors' });
 Dependency.belongsTo(Task, { foreignKey: 'taskId' });
 Dependency.belongsTo(Task, { foreignKey: 'dependsOnId' });
 
+
 module.exports = Dependency;
