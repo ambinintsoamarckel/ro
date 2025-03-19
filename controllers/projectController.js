@@ -77,3 +77,25 @@ exports.deleteProject = async (req, res) => {
         res.status(500).json({ message: "Erreur lors de la suppression du projet", error: error.message });
     }
 };
+ exports.getProjectsByUser = async (req, res) => {
+    try {
+      const userId = req.user.id; // Supposons que l'ID de l'utilisateur est extrait du token d'authentification
+  
+      if (!userId) {
+        return res.status(400).json({ error: "L'identifiant de l'utilisateur est requis." });
+      }
+  
+      const projects = await Project.findAll({
+        where: { userId }
+      });
+  
+      if (!projects.length) {
+        return res.status(404).json({ message: "Aucun projet trouvé pour cet utilisateur." });
+      }
+  
+      res.status(200).json(projects);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  }
+  

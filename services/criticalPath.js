@@ -1,7 +1,12 @@
 const Task = require('../models/Task');
 
-async function getTaskGraph() {
-  const tasks = await Task.findAll({ include: ['dependencies', 'successors'] });
+
+async function getTaskGraph(projectId) {
+  const tasks = await Task.findAll({ 
+    where: { projectId }, // 🔥 Filtrer par projet
+    include: ['dependencies', 'successors'] 
+  });
+
   const graph = {};
   const inDegree = {};
 
@@ -23,8 +28,8 @@ async function getTaskGraph() {
   return { graph, inDegree };
 }
 
-async function topologicalSort() {
-  const { graph, inDegree } = await getTaskGraph();
+async function topologicalSort(projectId) {
+  const { graph, inDegree } = await getTaskGraph(projectId);
   const sortedTasks = [];
   const queue = [];
 
@@ -51,8 +56,8 @@ async function topologicalSort() {
   return sortedTasks;
 }
 
-async function getCriticalPath() {
-  const sortedTasks = await topologicalSort();
+async function getCriticalPath(projectId) {
+  const sortedTasks = await topologicalSort(projectId);
   const taskMap = Object.fromEntries(sortedTasks.map(task => [
     task.id,
     { ...task, earlyStart: 0, earlyFinish: 0, lateStart: 0, lateFinish: 0, slack: 0, critical: false }
@@ -81,12 +86,9 @@ async function getCriticalPath() {
     taskMap[task.id].critical = (taskMap[task.id].slack === 0);
   });
 
-  // Extraire uniquement les tâches critiques
-  const criticalPathTasks = sortedTasks
-    .filter(task => taskMap[task.id].critical)
-    .sort((a, b) => taskMap[a.id].earlyStart - taskMap[b.id].earlyStart);
-
-  return criticalPathTasks;
+  // Retourner toutes les tâches avec leurs attributs, dans l'ordre de sortedTasks
+  return sortedTasks.map(task => taskMap[task.id]);
 }
+
 
 module.exports = { getCriticalPath };
