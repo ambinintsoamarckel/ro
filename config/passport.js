@@ -95,13 +95,25 @@ router.post('/logout', async (req, res) => {
 });
 
 
-// Route pour le signup
-router.post('/signup', async (req, res) => {
+// Route pour l'inscription
+router.post("/signup", async (req, res, next) => {
   try {
-    const utilisateur = Utilisateur.build(req.body); // Utilisation de build() au lieu de new User()
+    // Création du nouvel utilisateur
+    const utilisateur = Utilisateur.build(req.body);
     utilisateur.setPassword(req.body.password);
     await utilisateur.save();
-    res.status(201).json(utilisateur);
+
+    // Connexion automatique après l'inscription
+    req.logIn(utilisateur, (err) => {
+      if (err) {
+        return next(err); // Gestion des erreurs de connexion
+      }
+
+      // Sauvegarde de la session avant de répondre
+      req.session.save(() => {
+        res.status(201).json({ message: "Inscription réussie et connexion automatique", utilisateur });
+      });
+    });
   } catch (error) {
     res.status(400).json({ message: error.message });
   }
