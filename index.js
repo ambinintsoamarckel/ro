@@ -7,6 +7,7 @@ const taskRoutes = require("./routes/taskRoutes");
 const AuthRoute = require("./config/passport");
 const passport = require("passport");
 const dependencyRoutes = require("./routes/dependencyRoutes");
+const projectRoutes = require('./routes/projectRoutes');
 
 const generateSecret = () => {
   return process.env.SESSION_SECRET || "Mon-secret-qui-tue";
@@ -40,12 +41,13 @@ sessionStore.sync(); // Synchronisation de la session avec la base de données
 app.use(express.json());
 
 // Définition des routes
-app.use("/api", taskRoutes);
-app.use("/api", dependencyRoutes);
+app.use("/", taskRoutes);
+app.use("/", dependencyRoutes);
 app.use("/", AuthRoute);
+app.use('/projects', projectRoutes);
 
 // Synchronisation avec la base de données et démarrage du serveur
-sequelize.sync().then(() => {
+sequelize.sync({ alter: true }).then(() => {
   console.log("Base de données synchronisée !");
   app.listen(3001, () =>
     console.log("Serveur démarré sur http://localhost:3001")

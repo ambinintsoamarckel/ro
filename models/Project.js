@@ -8,7 +8,8 @@ const Project = sequelize.define('Project', {
   description: { type: DataTypes.TEXT, allowNull: true },
   isFavorite: { type: DataTypes.BOOLEAN, defaultValue: false }
 }, { timestamps: false });
-Project.hasMany(Task, { foreignKey: 'projectId', as: 'tasks' });
-Task.belongsTo(Project, { foreignKey: 'projectId' });
+Project.hasMany(Task, { foreignKey: 'projectId', as: 'tasks', onDelete: 'CASCADE' });
+Task.belongsTo(Project, { foreignKey: 'projectId', onDelete: 'CASCADE' });
+
 
 module.exports = Project;
