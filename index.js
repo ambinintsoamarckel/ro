@@ -17,7 +17,7 @@ const secret = generateSecret();
 const sessionStore = new SequelizeStore({ db: sequelize }); // Ajout de sessionStore
 
 const app = express();
-const sessionConfig = {
+/*const sessionConfig = {
   secret: secret,
   resave: false,
   saveUninitialized: false,
@@ -27,10 +27,27 @@ const sessionConfig = {
     maxAge: 1000 * 60 * 60 * 24, // 1 jour
     sameSite: "None",
   },
+};*/
+const sessionConfig = {
+  secret: secret,
+  resave: false,
+  saveUninitialized: false,
+  store: sessionStore,
+  cookie: {
+    httpOnly: true, // Empêche l'accès aux cookies par JavaScript
+    secure: false, // En local, HTTPS n'est pas activé, donc false
+    sameSite: "Lax", // "Lax" en développement pour éviter les erreurs
+    maxAge: 1000 * 60 * 60 * 24, // 1 jour
+  },
 };
 
 // Activation de CORS
-app.use(cors());
+//app.use(cors());
+app.use(cors({
+  origin: "http://localhost:3000", // URL de ton frontend Next.js
+  credentials: true, // Autorise l'envoi des cookies
+}));
+
 app.use(session(sessionConfig));
 app.use(passport.initialize());
 app.use(passport.session());
