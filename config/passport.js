@@ -10,7 +10,7 @@ const router = express.Router();
 passport.use(new LocalStrategy(
   async function verify(username, password, cb) {
     try {
-      const user = await Utilisateur.findOne({ username: username });
+      const user = await Utilisateur.findOne({ where: { username: username } });
       
       if (!user) {
         return cb(null, false, { message: 'Incorrect email.' });
@@ -43,8 +43,6 @@ passport.deserializeUser(async function(user, cb) {
   });
 });
 
-
-// Route pour le login
 // Route pour le login
 router.post('/login', (req, res, next) => {
   passport.authenticate('local', (err, user, info) => {
