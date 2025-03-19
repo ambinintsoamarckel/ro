@@ -1,9 +1,11 @@
 const express = require('express');
-const { createTask, getTasks , getTasksByProjectId} = require('../controllers/taskController');
+const { createTask, getTasks , getTasksByProjectId, updateTask,deleteTask} = require('../controllers/taskController');
 const { getCriticalPath } = require('../services/criticalPath')
 const router = express.Router();
 
 router.post('/tasks', createTask);
+router.put('/tasks/:id', updateTask);
+router.delete('/tasks/;id', deleteTask);
 router.get('/tasks/project/:projectId', getTasksByProjectId);
 router.get('/tasks', getTasks);
 router.get('/critical-path/:projectId', async (req, res) => {

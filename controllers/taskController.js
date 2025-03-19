@@ -69,5 +69,43 @@ async function getTasksByProjectId(req, res) {
     res.status(500).json({ error: error.message });
   }
 }
+async function updateTask(req, res) {
+  try {
+    const { id } = req.params;
+    const { name, duration } = req.body; // projectId retiré
 
-module.exports = { createTask, getTasks,getTasksByProjectId };
+    // Vérifier si l'ID est valide
+    const task = await Task.findByPk(id);
+    if (!task) {
+      return res.status(404).json({ error: `La tâche avec l'ID ${id} n'existe pas.` });
+    }
+
+    // Mise à jour de la tâche sans modifier projectId
+    await task.update({ name, duration });
+
+    res.status(200).json(task);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+}
+async function deleteTask(req, res) {
+  try {
+    const { id } = req.params;
+
+    // Vérifier si la tâche existe
+    const task = await Task.findByPk(id);
+    if (!task) {
+      return res.status(404).json({ error: `La tâche avec l'ID ${id} n'existe pas.` });
+    }
+
+    // Suppression de la tâche
+    await task.destroy();
+
+    res.status(200).json({ message: `La tâche avec l'ID ${id} a été supprimée.` });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+}
+
+
+module.exports = { createTask, getTasks,getTasksByProjectId, deleteTask,updateTask };

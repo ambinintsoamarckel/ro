@@ -29,5 +29,23 @@ async function addDependency(req, res) {
     res.status(500).json({ error: error.message });
   }
 }
+async function removeDependency(req, res) {
+  const { taskId, dependsOnId } = req.body; // On récupère les IDs des tâches concernées
 
-module.exports = { addDependency };
+  try {
+    const dependency = await Dependency.findOne({ where: { taskId, dependsOnId } });
+
+    if (!dependency) {
+      return res.status(404).json({ error: "Cette dépendance n'existe pas." });
+    }
+
+    await dependency.destroy(); // Suppression de la dépendance
+
+    res.status(200).json({ message: "Dépendance supprimée !" });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+}
+
+
+module.exports = { addDependency,removeDependency };
