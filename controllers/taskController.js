@@ -57,7 +57,8 @@ async function getTasksByProjectId(req, res) {
     }
 
     const tasks = await Task.findAll({
-      where: { projectId }
+      where: { projectId },
+      include: ['dependencies', 'successors'] 
     });
 
     if (!tasks.length) {
