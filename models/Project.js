@@ -6,7 +6,8 @@ const Project = sequelize.define('Project', {
   id: { type: DataTypes.INTEGER, autoIncrement: true, primaryKey: true },
   name: { type: DataTypes.STRING, allowNull: false },
   description: { type: DataTypes.TEXT, allowNull: true },
-  isFavorite: { type: DataTypes.BOOLEAN, defaultValue: false }
+  isFavorite: { type: DataTypes.BOOLEAN, defaultValue: false },
+  isSuccessor: { type: DataTypes.BOOLEAN, defaultValue: true }
 }, { timestamps: false });
 Project.hasMany(Task, { foreignKey: 'projectId', as: 'tasks', onDelete: 'CASCADE' });
 Task.belongsTo(Project, { foreignKey: 'projectId', onDelete: 'CASCADE' });

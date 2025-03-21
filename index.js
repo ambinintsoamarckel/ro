@@ -64,7 +64,7 @@ app.use("/", AuthRoute);
 app.use('/projects', projectRoutes);
 
 // Synchronisation avec la base de données et démarrage du serveur
-sequelize.sync({ alter: true }).then(() => {
+sequelize.sync({  }).then(() => {
   console.log("Base de données synchronisée !");
   app.listen(3001, () =>
     console.log("Serveur démarré sur http://localhost:3001")

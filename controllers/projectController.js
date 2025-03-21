@@ -47,14 +47,14 @@ exports.getProjectById = async (req, res) => {
 exports.updateProject = async (req, res) => {
     try {
         const { id } = req.params;
-        const { name, description, isFavorite } = req.body;
+        const { name, description, isFavorite, isSuccessor } = req.body;
 
         const project = await Project.findByPk(id);
         if (!project) {
             return res.status(404).json({ message: "Projet non trouvé" });
         }
 
-        await project.update({ name, description, isFavorite });
+        await project.update({ name, description, isFavorite,isSuccessor });
         res.status(200).json({ message: "Projet mis à jour avec succès", project });
     } catch (error) {
         res.status(500).json({ message: "Erreur lors de la mise à jour du projet", error: error.message });

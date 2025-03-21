@@ -29,6 +29,39 @@ async function addDependency(req, res) {
     res.status(500).json({ error: error.message });
   }
 }
+async function resetDependency(req, res) {
+  const { taskId, dependsOnIds, successorIds } = req.body;
+
+  try {
+    if (!taskId) {
+      return res.status(400).json({ error: "taskId est requis." });
+    }
+
+    // Supprime toutes les dépendances où taskId est un prédécesseur (successeurs)
+    if (successorIds) {
+      await Dependency.destroy({ where: { dependsOnId: taskId } });
+    }
+
+    // Supprime toutes les dépendances où taskId dépend d'autres tâches (antérieurs)
+    if (dependsOnIds) {
+      await Dependency.destroy({ where: { taskId } });
+
+      // Ajoute les nouvelles dépendances
+      for (const dependsOnId of dependsOnIds) {
+        if (await checkForCycle(taskId, dependsOnId)) {
+          return res.status(400).json({ error: "Cycle détecté !" });
+        }
+        await Dependency.create({ taskId, dependsOnId });
+      }
+    }
+
+    res.status(200).json({ message: "Dépendances réinitialisées avec succès !" });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+}
+
+
 async function removeDependency(req, res) {
   const { taskId, dependsOnId } = req.body; // On récupère les IDs des tâches concernées
 
@@ -48,4 +81,4 @@ async function removeDependency(req, res) {
 }
 
 
-module.exports = { addDependency,removeDependency };
+module.exports = { addDependency,removeDependency, resetDependency };
