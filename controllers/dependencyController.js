@@ -54,6 +54,15 @@ async function resetDependency(req, res) {
         await Dependency.create({ taskId, dependsOnId });
       }
     }
+    
+    if (successorIds) {
+      for (const successorId of successorIds) {
+        if (await checkForCycle(successorId, taskId)) {
+          return res.status(400).json({ error: "Cycle détecté !" });
+        }
+        await Dependency.create({ taskId: successorId, dependsOnId: taskId });
+      }
+    }
 
     res.status(200).json({ message: "Dépendances réinitialisées avec succès !" });
   } catch (error) {
