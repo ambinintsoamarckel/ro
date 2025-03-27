@@ -91,4 +91,4 @@ async function getCriticalPath(projectId) {
 }
 
 
-module.exports = { getCriticalPath };
+module.exports = { getCriticalPath , getTaskGraph };
