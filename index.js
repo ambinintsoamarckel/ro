@@ -70,3 +70,4 @@ sequelize.sync({  }).then(() => {
     console.log("Serveur démarré sur http://localhost:3001")
   );
 });
+       

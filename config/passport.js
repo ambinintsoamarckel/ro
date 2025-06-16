@@ -92,6 +92,15 @@ router.post('/logout', async (req, res) => {
   }
 });
 
+// Vérifie si l'utilisateur est connecté
+router.get("/me", (req, res) => {
+  if (req.isAuthenticated()) {
+    return res.status(200).json({ user: req.user });
+  } else {
+    return res.status(401).json({ message: "Non authentifié" });
+  }
+});
+
 
 // Route pour l'inscription
 router.post("/signup", async (req, res, next) => {
