@@ -102,6 +102,7 @@ router.get("/me", (req, res) => {
 });
 
 
+
 // Route pour l'inscription
 router.post("/signup", async (req, res, next) => {
   try {
@@ -125,6 +126,76 @@ router.post("/signup", async (req, res, next) => {
     res.status(400).json({ message: error.message });
   }
 });
+// PATCH /auth/update-profile
+router.patch('/update-profile', async (req, res) => {
+  const { newUsername, password } = req.body;
+
+  if (!req.user) return res.status(401).json({ message: "Non authentifié" });
+
+  try {
+    const user = await Utilisateur.findByPk(req.user.id);
+
+    // Vérification du mot de passe
+    const hashedPassword = crypto.pbkdf2Sync(password, user.salt, 310000, 32, 'sha256').toString('hex');
+    if (hashedPassword !== user.password) {
+      return res.status(401).json({ message: "Mot de passe incorrect" });
+    }
+
+    user.username = newUsername;
+    await user.save();
+    return res.status(200).json({ message: "Profil mis à jour", user: { id: user.id, username: user.username } });
+  } catch (err) {
+    return res.status(500).json({ message: err.message });
+  }
+});
+// PATCH /auth/reset-password
+router.patch('/reset-password', async (req, res, next) => {
+  const { currentPassword, newPassword } = req.body;
+
+  if (!req.user) return res.status(401).json({ message: "Non authentifié" });
+
+  try {
+    const user = await Utilisateur.findByPk(req.user.id);
+
+    // Vérification
+    const hashed = crypto.pbkdf2Sync(currentPassword, user.salt, 310000, 32, 'sha256').toString('hex');
+    if (hashed !== user.password) return res.status(401).json({ message: "Mot de passe actuel incorrect" });
+
+    user.setPassword(newPassword);
+    await user.save();
+
+    // Réauthentification (session mise à jour sans afficher un "logout")
+    req.logIn(user, (err) => {
+      if (err) return next(err);
+      return res.status(200).json({ message: "Mot de passe mis à jour" });
+    });
+  } catch (error) {
+    return res.status(500).json({ message: error.message });
+  }
+});
+// DELETE /auth/delete-account
+router.delete('/delete-account', async (req, res) => {
+  const { password } = req.body;
+
+  if (!req.user) return res.status(401).json({ message: "Non authentifié" });
+
+  try {
+    const user = await Utilisateur.findByPk(req.user.id);
+
+    const hashed = crypto.pbkdf2Sync(password, user.salt, 310000, 32, 'sha256').toString('hex');
+    if (hashed !== user.password) {
+      return res.status(401).json({ message: "Mot de passe incorrect" });
+    }
+
+    await user.destroy();
+    req.logout(() => {
+      return res.status(200).json({ message: "Compte supprimé" });
+    });
+  } catch (err) {
+    return res.status(500).json({ message: err.message });
+  }
+});
+
 
 
 module.exports = router;
