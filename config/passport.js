@@ -13,13 +13,13 @@ passport.use(new LocalStrategy(
       const user = await Utilisateur.findOne({ where: { username: username } });
       
       if (!user) {
-        return cb(null, false, { message: 'Incorrect email.' });
+        return cb(null, false, { message: "Nom d'utilisateur incorrecte." });
       }
       
       crypto.pbkdf2(password, user.salt, 310000, 32, 'sha256', function(err, hashedPassword) {
         if (err) { return cb(err); }
         if (!crypto.timingSafeEqual(Buffer.from(user.password, 'hex'), hashedPassword)) {
-          return cb(null, false, { message: 'Incorrect password.' });
+          return cb(null, false, { message: 'Mot de passe incorrecte.' });
         }
         return cb(null, user);
       });
